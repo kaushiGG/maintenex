@@ -79,7 +79,7 @@ const JobReportPage: React.FC<JobReportPageProps> = ({
       } else if (type === 'emergency-lighting') {
         tableName = 'emergency_lighting_reports';
       } else if (type === 'thermal-imaging') {
-        tableName = 'thermal_imaging_reports';
+        tableName = 'thermal_reports';
       } else {
         console.error('Unknown report type:', type);
         toast.error('Unknown report type');

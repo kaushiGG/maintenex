@@ -1,120 +1,172 @@
-import React, { useState, useCallback } from 'react';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { FileInput } from '@/components/ui/file-input';
+import { Label } from '@/components/ui/label';
+import { Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuth } from '@/context/AuthContext';
-import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/integrations/supabase/client';
 
-interface FloorPlanUploadProps {
+export interface FloorPlanUploadProps {
   siteId: string;
-  onUploadSuccess?: () => void;
 }
 
-const FloorPlanUpload: React.FC<FloorPlanUploadProps> = ({ siteId, onUploadSuccess }) => {
-  const { user } = useAuth();
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [planName, setPlanName] = useState<string>('');
-  const [isUploading, setIsUploading] = useState<boolean>(false);
+const FloorPlanUpload: React.FC<FloorPlanUploadProps> = ({ siteId }) => {
+  const [file, setFile] = useState<File | null>(null);
+  const [name, setName] = useState('');
+  const [uploading, setUploading] = useState(false);
 
-  const handleFileChange = (file: File | null) => {
-    setSelectedFile(file);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPlanName(e.target.value);
-  };
-
-  // Update the handleUpload function to use the correct bucket and file path format
   const handleUpload = async () => {
+    if (!file) {
+      toast.error('Please select a file');
+      return;
+    }
+
+    if (!name.trim()) {
+      toast.error('Please enter a name for the floor plan');
+      return;
+    }
+
+    if (!siteId) {
+      toast.error('No site selected');
+      return;
+    }
+
+    setUploading(true);
+
     try {
-      setIsUploading(true);
+      // Upload file to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${siteId}/${Date.now()}.${fileExt}`;
       
-      if (!selectedFile) {
-        toast.error('Please select a file first.');
-        setIsUploading(false);
+      // First check if storage is available
+      const { data: buckets, error: bucketError } = await supabase
+        .storage
+        .listBuckets();
+      
+      if (bucketError) {
+        console.error('Error checking storage buckets:', bucketError);
+        toast.error('Error accessing storage');
         return;
       }
       
-      // Generate a unique file path
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${siteId}_${uuidv4()}.${fileExt}`;
-      const filePath = `${siteId}/${fileName}`;
+      // Check if floor_plans bucket exists
+      let bucketName = 'floor_plans';
+      const bucketExists = buckets.some(bucket => bucket.name === bucketName);
       
-      console.log(`Uploading to floorplans bucket with path: ${filePath}`);
-      
-      // Upload to the floorplans bucket
-      const { error: uploadError } = await supabase.storage
-        .from('floorplans')
-        .upload(filePath, selectedFile);
-        
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        
-        // Check if it's a bucket not found error
-        if (uploadError.message.includes('not found') || uploadError.message.includes('does not exist')) {
-          toast.error(
-            'The floorplans storage bucket does not exist. Please create it in the Supabase dashboard.',
-            { duration: 8000 }
-          );
+      if (!bucketExists) {
+        // If bucket doesn't exist, create it
+        const { error: createError } = await supabase
+          .storage
+          .createBucket(bucketName, {
+            public: false
+          });
+          
+        if (createError) {
+          console.error('Error creating storage bucket:', createError);
+          toast.error('Error setting up storage');
           return;
         }
-        
-        throw uploadError;
       }
-      
-      // Save the floor plan data in the database
+
+      // Upload the file
+      const { data, error } = await supabase
+        .storage
+        .from(bucketName)
+        .upload(fileName, file);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Get public URL
+      const { data: publicUrlData } = supabase
+        .storage
+        .from(bucketName)
+        .getPublicUrl(fileName);
+
+      // Create a record in the database
       const { error: dbError } = await supabase
         .from('site_floor_plans')
         .insert({
           site_id: siteId,
-          name: planName || selectedFile.name,
-          file_path: filePath, // Store just the path, not the full URL
-          file_type: fileExt,
-          uploaded_by: user?.id
+          name: name,
+          file_path: publicUrlData.publicUrl,
+          file_type: file.type,
+          uploaded_by: (await supabase.auth.getUser()).data.user?.id
         });
-        
+
       if (dbError) {
-        console.error('Database error:', dbError);
-        throw dbError;
+        throw new Error(dbError.message);
       }
-      
+
       toast.success('Floor plan uploaded successfully');
-      setSelectedFile(null);
-      setPlanName('');
-      
-      // Refresh the floor plans list
-      if (onUploadSuccess) {
-        onUploadSuccess();
-      }
-    } catch (error: any) {
+      setFile(null);
+      setName('');
+    } catch (error) {
       console.error('Error uploading floor plan:', error);
-      toast.error(`Failed to upload floor plan: ${error.message || 'Unknown error'}`);
+      toast.error('Failed to upload floor plan');
     } finally {
-      setIsUploading(false);
+      setUploading(false);
     }
   };
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="plan-name" className="text-sm">Plan Name (Optional)</Label>
-        <Input
-          type="text"
-          id="plan-name"
-          placeholder="Enter plan name"
-          value={planName}
-          onChange={handleNameChange}
-        />
+      <h3 className="text-lg font-medium">Upload Floor Plan</h3>
+      
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="floor-plan-name">Floor Plan Name</Label>
+          <Input 
+            id="floor-plan-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g., Ground Floor, Level 1, etc."
+            className="mt-1"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="floor-plan-file">Floor Plan File</Label>
+          <FileInput
+            id="floor-plan-file"
+            onChange={handleFileChange}
+            className="mt-1"
+            accept=".pdf,.jpg,.jpeg,.png"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Accepted formats: PDF, JPG, PNG (Max 10MB)
+          </p>
+        </div>
+        
+        <div>
+          <Button
+            onClick={handleUpload}
+            disabled={uploading || !file}
+            className="w-full sm:w-auto"
+          >
+            {uploading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Floor Plan
+              </>
+            )}
+          </Button>
+        </div>
       </div>
-      <div>
-        <FileInput onFileChange={handleFileChange} />
-      </div>
-      <Button onClick={handleUpload} disabled={isUploading}>
-        {isUploading ? 'Uploading...' : 'Upload Floor Plan'}
-      </Button>
     </div>
   );
 };

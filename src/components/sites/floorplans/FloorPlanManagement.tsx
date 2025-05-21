@@ -1,121 +1,112 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { Plus, Upload, File, Edit, Trash2 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import FloorPlanUpload from './FloorPlanUpload';
 import FloorPlanView from './FloorPlanView';
 
-interface FloorPlanManagementProps {
-  siteId: string;
+export interface FloorPlanManagementProps {
+  siteId?: string;
 }
 
 const FloorPlanManagement: React.FC<FloorPlanManagementProps> = ({ siteId }) => {
-  const [selectedTab, setSelectedTab] = useState<string>('upload');
-  const [floorPlans, setFloorPlans] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('view');
+  const [floorPlans, setFloorPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchFloorPlans = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('site_floor_plans')
-          .select('*')
-          .eq('site_id', siteId);
-
-        if (error) {
-          throw error;
-        }
-
-        setFloorPlans(data || []);
-      } catch (error) {
-        console.error('Error fetching floor plans:', error);
-        toast.error('Failed to load floor plans');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (siteId) {
       fetchFloorPlans();
+    } else {
+      setLoading(false);
     }
   }, [siteId]);
 
-  const handleUploadSuccess = () => {
-    // Refresh floor plans after a successful upload
-    fetchFloorPlans();
-  };
-
   const fetchFloorPlans = async () => {
-    setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      const query = supabase
         .from('site_floor_plans')
         .select('*')
-        .eq('site_id', siteId);
-
+        .order('created_at', { ascending: false });
+        
+      if (siteId) {
+        query.eq('site_id', siteId);
+      }
+      
+      const { data, error } = await query;
+      
       if (error) {
         throw error;
       }
-
+      
       setFloorPlans(data || []);
     } catch (error) {
       console.error('Error fetching floor plans:', error);
       toast.error('Failed to load floor plans');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Floor Plan Management</CardTitle>
-        <CardDescription>Upload and manage floor plans for this site.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Floor Plan Management</h1>
-          <p className="text-sm text-gray-500">
-            Upload and view floor plans for your business sites
-          </p>
-        </div>
-        <Tabs defaultValue={selectedTab} className="space-y-4" onValueChange={setSelectedTab}>
-          <TabsList>
-            <TabsTrigger value="upload">
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Floor Plan
-            </TabsTrigger>
-            <TabsTrigger value="view">
-              <File className="mr-2 h-4 w-4" />
-              View Floor Plans
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="upload">
-            <FloorPlanUpload siteId={siteId} onUploadSuccess={handleUploadSuccess} />
-          </TabsContent>
-          <TabsContent value="view">
-            <FloorPlanView siteId={siteId} floorPlans={floorPlans} isLoading={isLoading} onFloorPlansChange={setFloorPlans} />
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="view">View Floor Plans</TabsTrigger>
+          <TabsTrigger value="upload">Upload Floor Plan</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="view">
+          <Card>
+            <CardContent className="pt-6">
+              {loading ? (
+                <div className="flex justify-center p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+                </div>
+              ) : floorPlans.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {floorPlans.map((plan) => (
+                    <FloorPlanView 
+                      key={plan.id}
+                      floorPlanUrl={plan.file_path}
+                      name={plan.name}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No floor plans available</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    {siteId ? 'Upload floor plans using the Upload tab.' : 'Select a site to view its floor plans.'}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="upload">
+          <Card>
+            <CardContent className="pt-6">
+              {siteId ? (
+                <FloorPlanUpload siteId={siteId} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No site selected</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Please select a site first to upload floor plans.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

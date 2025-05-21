@@ -194,10 +194,10 @@ const EquipmentDashboard = ({ portalType = 'business' }: EquipmentDashboardProps
         authorized_officers: newEquipment.authorized_officers
       };
 
-      // Type cast to avoid TypeScript errors
+      // Insert as single object, not as array
       const { error } = await supabase
         .from('equipment')
-        .insert(dbEquipment as any);
+        .insert(dbEquipment);
 
       if (error) throw error;
 

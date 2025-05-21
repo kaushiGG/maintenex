@@ -1,95 +1,92 @@
 
-import React, { useState } from 'react';
-import { ContractorSearch } from './search/ContractorSearch';
-import { ContractorHeader } from './header/ContractorHeader';
-import { ContractorTabContent } from './tabs/ContractorTabContent';
-import AddContractorDialog from './AddContractorDialog';
-import { useContractors } from './hooks/useContractors';
-import { filterContractors } from './utils/contractorFilterUtils';
+import React from 'react';
+import { ContactIcon, FileText, Info, Mail, Shield, UserCheck } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import BasicInfoTab from './tabs/BasicInfoTab';
+import ContactTab from './tabs/ContactTab';
+import LicensesTab from './tabs/LicensesTab';
+import InsuranceTab from './tabs/InsuranceTab';
+import AdditionalTab from './tabs/AdditionalTab';
 import { Contractor } from '@/types/contractor';
-import { Dialog } from '@/components/ui/dialog';
-import ContractorImportModal from './ContractorImportModal';
 
-const ContractorManagementUI = () => {
-  const [activeTab, setActiveTab] = useState('contractors');
-  const [isAddContractorOpen, setIsAddContractorOpen] = useState(false);
-  const [isImportContractorsOpen, setIsImportContractorsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  
-  const { 
-    contractors, 
-    isLoading, 
-    addContractor,
-    refreshContractors
-  } = useContractors();
+interface ContractorManagementUIProps {
+  contractor: Contractor;
+  onUpdateContractor: (contractorId: string, updates: Partial<Contractor>) => Promise<void>;
+}
 
-  const handleAddNewContractor = () => {
-    setIsAddContractorOpen(true);
-  };
-
-  const handleAddContractor = async (newContractor: Omit<Contractor, 'id'>) => {
-    const success = await addContractor(newContractor);
-    if (success) {
-      setIsAddContractorOpen(false);
-    }
-    return success;
-  };
-
-  const handleImportContractors = () => {
-    setIsImportContractorsOpen(true);
-  };
-
-  const handleImportSuccess = () => {
-    refreshContractors();
-    setIsImportContractorsOpen(false);
-  };
-
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-  };
-
-  const handleFilterChange = (value: string) => {
-    setFilterStatus(value);
-  };
-
-  const filteredContractors = filterContractors(contractors, searchTerm, filterStatus);
+const ContractorManagementUI: React.FC<ContractorManagementUIProps> = ({
+  contractor,
+  onUpdateContractor
+}) => {
+  const [activeTab, setActiveTab] = React.useState('basic-info');
 
   return (
     <div className="space-y-6">
-      <ContractorHeader 
-        onAddContractor={handleAddNewContractor}
-        onImportContractors={handleImportContractors}
-      />
-      
-      {activeTab === 'contractors' && (
-        <ContractorSearch 
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-        />
-      )}
-      
-      <ContractorTabContent 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        filteredContractors={filteredContractors}
-        isLoading={isLoading}
-      />
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+        <h2 className="text-2xl font-bold text-gray-800">{contractor.name}</h2>
+        <div className="flex items-center mt-2 md:mt-0">
+          <span className={`px-3 py-1 rounded-full text-xs ${
+            contractor.status === 'Active' 
+              ? 'bg-green-100 text-green-800' 
+              : contractor.status === 'Suspended' 
+                ? 'bg-red-100 text-red-800' 
+                : 'bg-yellow-100 text-yellow-800'
+          }`}>
+            {contractor.status}
+          </span>
+        </div>
+      </div>
 
-      <Dialog open={isAddContractorOpen} onOpenChange={setIsAddContractorOpen}>
-        <AddContractorDialog 
-          open={isAddContractorOpen}
-          onOpenChange={setIsAddContractorOpen}
-          onAddContractor={handleAddContractor}
-        />
-      </Dialog>
-
-      <Dialog open={isImportContractorsOpen} onOpenChange={setIsImportContractorsOpen}>
-        <ContractorImportModal 
-          onClose={() => setIsImportContractorsOpen(false)}
-          onSuccess={handleImportSuccess}
-        />
-      </Dialog>
+      <Tabs 
+        value={activeTab} 
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
+        <TabsList className="grid w-full md:grid-cols-5 grid-cols-2 mb-8">
+          <TabsTrigger value="basic-info" className="flex items-center gap-2">
+            <Info className="h-4 w-4" />
+            <span className="hidden md:inline">Basic Info</span>
+            <span className="md:hidden">Info</span>
+          </TabsTrigger>
+          <TabsTrigger value="contact" className="flex items-center gap-2">
+            <ContactIcon className="h-4 w-4" />
+            <span>Contact</span>
+          </TabsTrigger>
+          <TabsTrigger value="licenses" className="flex items-center gap-2">
+            <UserCheck className="h-4 w-4" />
+            <span>Licenses</span>
+          </TabsTrigger>
+          <TabsTrigger value="insurance" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            <span>Insurance</span>
+          </TabsTrigger>
+          <TabsTrigger value="additional" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            <span className="hidden md:inline">Additional</span>
+            <span className="md:hidden">More</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="basic-info">
+          <BasicInfoTab contractor={contractor} onUpdate={onUpdateContractor} />
+        </TabsContent>
+        
+        <TabsContent value="contact">
+          <ContactTab contractor={contractor} onUpdate={onUpdateContractor} />
+        </TabsContent>
+        
+        <TabsContent value="licenses">
+          <LicensesTab contractor={contractor} />
+        </TabsContent>
+        
+        <TabsContent value="insurance">
+          <InsuranceTab contractor={contractor} />
+        </TabsContent>
+        
+        <TabsContent value="additional">
+          <AdditionalTab contractor={contractor} onUpdate={onUpdateContractor} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

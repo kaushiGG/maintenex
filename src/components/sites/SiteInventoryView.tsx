@@ -6,6 +6,7 @@ import InventoryTable from './inventory/InventoryTable';
 import FilterBar from './inventory/FilterBar';
 import FloorPlanViewer from './floorplans/FloorPlanViewer';
 import FloorPlanUpload from './floorplans/FloorPlanUpload';
+import FloorPlanManagement from './floorplans/FloorPlanManagement';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { PlusCircle, TableProperties, Upload } from 'lucide-react';
@@ -167,7 +168,7 @@ const SiteInventoryView: React.FC<SiteInventoryViewProps> = ({ viewType = 'inven
         <TabsContent value="upload">
           <Card>
             <CardContent className="p-4">
-              <FloorPlanUpload />
+              <FloorPlanUpload siteId={siteId || ''} />
             </CardContent>
           </Card>
         </TabsContent>

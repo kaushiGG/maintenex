@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, useParams } from 'react-router-dom';
 import MyJobsPage from '@/components/contractor/jobs/MyJobsPage';
@@ -14,9 +15,9 @@ import { useNavigate } from 'react-router-dom';
 import BusinessJobDetailsPage from '@/components/client/jobs/BusinessJobDetailsPage';
 
 interface JobsPagesProps {
-  switchRole: () => void;
+  switchRole?: () => void;
   userRole: 'business' | 'contractor';
-  handleLogout: () => void;
+  handleLogout?: () => void;
   userMode?: UserMode;
 }
 
@@ -25,96 +26,63 @@ const JobsPages: React.FC<JobsPagesProps> = ({
   userRole, 
   handleLogout,
   userMode = 'provider'
-}: JobsPagesProps) => {
+}) => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   
   console.log('JobsPages rendered with:', { userRole, userMode });
   
   const handleAuthSignOut = async () => {
-    await signOut();
-    navigate('/login');
+    if (handleLogout) {
+      handleLogout();
+    } else {
+      await signOut();
+      navigate('/login');
+    }
+  };
+
+  const safeProps = {
+    switchRole: switchRole || (() => {}),
+    userRole,
+    handleLogout: handleAuthSignOut,
+    userMode
   };
   
   return (
     <Routes>
       <Route 
         path="/assign" 
-        element={
-          <AssignJobPage 
-            switchRole={switchRole} 
-            userRole={userRole} 
-            handleLogout={handleAuthSignOut}
-          />
-        } 
+        element={<AssignJobPage {...safeProps} />} 
       />
       <Route 
         path="/active" 
-        element={
-          <ActiveJobsPage 
-            switchRole={switchRole} 
-            userRole={userRole} 
-            handleLogout={handleAuthSignOut}
-          />
-        } 
+        element={<ActiveJobsPage {...safeProps} />} 
       />
       <Route
         path="/assigned"
-        element={
-          <AssignedJobsPage
-            switchRole={switchRole}
-            userRole={userRole}
-            handleLogout={handleAuthSignOut}
-            userMode={userMode}
-          />
-        }
+        element={<AssignedJobsPage {...safeProps} />}
       />
       <Route 
         path="/history" 
-        element={
-          <MyJobsPage 
-            switchRole={switchRole} 
-            userRole={userRole} 
-            handleLogout={handleAuthSignOut}
-            userMode={userMode}
-          />
-        } 
+        element={<MyJobsPage {...safeProps} />} 
       />
       <Route 
         path="/report/:jobId" 
-        element={
-          <JobReportPage 
-            switchRole={switchRole} 
-            userRole={userRole} 
-            handleLogout={handleAuthSignOut} 
-          />
-        } 
+        element={<JobReportPage {...safeProps} />} 
       />
       <Route 
         path="/completed" 
         element={
           userRole === 'business' ? (
-            <CompletedJobsPage />
+            <CompletedJobsPage {...safeProps} />
           ) : (
-            <ContractorCompletedJobsPage 
-              switchRole={switchRole} 
-              userRole={userRole} 
-              handleLogout={handleAuthSignOut}
-              userMode={userMode}
-            />
+            <ContractorCompletedJobsPage {...safeProps} />
           )
         } 
       />
       <Route 
         path="/*" 
-        element={
-          <MyJobsPage 
-            switchRole={switchRole} 
-            userRole={userRole} 
-            handleLogout={handleAuthSignOut}
-            userMode={userMode}
-          />
-        } 
+        element={<MyJobsPage {...safeProps} />} 
       />
       <Route 
         path="/details/:jobId" 
@@ -122,46 +90,21 @@ const JobsPages: React.FC<JobsPagesProps> = ({
           userRole === 'business' && userMode === 'provider' ? (
             <BusinessJobDetailsPageRedirect />
           ) : (
-            <JobDetailsPage 
-              switchRole={switchRole} 
-              userRole={userRole} 
-              handleLogout={handleAuthSignOut} 
-            />
+            <JobDetailsPage {...safeProps} /> 
           )
         } 
       />
       <Route 
         path="/upcoming" 
-        element={
-          <MyJobsPage 
-            switchRole={switchRole} 
-            userRole={userRole} 
-            handleLogout={handleAuthSignOut}
-            userMode={userMode} 
-          />
-        } 
+        element={<MyJobsPage {...safeProps} />} 
       />
       <Route 
         path="/in-progress" 
-        element={
-          <MyJobsPage 
-            switchRole={switchRole} 
-            userRole={userRole} 
-            handleLogout={handleAuthSignOut}
-            userMode={userMode} 
-          />
-        } 
+        element={<MyJobsPage {...safeProps} />} 
       />
       <Route 
         path="/schedule" 
-        element={
-          <MyJobsPage 
-            switchRole={switchRole} 
-            userRole={userRole} 
-            handleLogout={handleAuthSignOut}
-            userMode={userMode} 
-          />
-        } 
+        element={<MyJobsPage {...safeProps} />} 
       />
     </Routes>
   );

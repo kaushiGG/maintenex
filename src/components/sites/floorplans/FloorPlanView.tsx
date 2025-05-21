@@ -1,112 +1,46 @@
-import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { getPublicFileUrl } from '@/utils/fileUpload';
 
-interface FloorPlan {
-  id: string;
-  file_path: string;
-  name: string;
-  file_type?: string;
-}
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Eye, Download } from 'lucide-react';
 
 interface FloorPlanViewProps {
-  siteId?: string;
-  floorPlans: FloorPlan[];
-  isLoading: boolean;
-  onFloorPlansChange?: (floorPlans: FloorPlan[]) => void;
+  floorPlanUrl?: string;
+  name?: string;
 }
 
-const FloorPlanView: React.FC<FloorPlanViewProps> = ({ 
-  siteId, 
-  floorPlans, 
-  isLoading,
-  onFloorPlansChange 
-}) => {
-  const [selectedPlan, setSelectedPlan] = useState<FloorPlan | null>(null);
-  const [isImageLoading, setIsImageLoading] = useState(true);
-
-  // Get the public URL for an image
-  const getImageUrl = (filePath: string) => {
-    return getPublicFileUrl('floorplans', filePath);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[300px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
-  if (floorPlans.length === 0) {
-    return (
-      <Card className="border-dashed border-2 border-gray-300">
-        <CardContent className="p-6 flex flex-col items-center justify-center min-h-[300px]">
-          <p className="text-gray-500 text-center">No floor plans available.</p>
-          <p className="text-gray-400 text-sm mt-2">Please upload a floor plan using the Upload tab.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
+const FloorPlanView: React.FC<FloorPlanViewProps> = ({ floorPlanUrl, name = 'Floor Plan' }) => {
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {floorPlans.map((plan) => {
-          const imageUrl = getImageUrl(plan.file_path);
-          return (
-            <Card 
-              key={plan.id} 
-              className={`cursor-pointer transition-all hover:shadow-md ${selectedPlan?.id === plan.id ? 'ring-2 ring-blue-500' : ''}`}
-              onClick={() => setSelectedPlan(plan)}
-            >
-              <CardContent className="p-4">
-                <div className="aspect-video relative overflow-hidden rounded-md bg-gray-100 mb-2">
-                  <img
-                    src={imageUrl}
-                    alt={plan.name}
-                    className="object-cover w-full h-full"
-                    onLoad={() => setIsImageLoading(false)}
-                    onError={(e) => {
-                      console.error(`Failed to load image: ${imageUrl}`);
-                      (e.target as HTMLImageElement).src = '/placeholder-floor-plan.png';
-                    }}
-                  />
-                </div>
-                <p className="text-sm font-medium truncate">{plan.name}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
+    <div className="bg-white rounded-md p-4 shadow-sm">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-medium">{name}</h3>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Eye className="h-4 w-4 mr-2" />
+            View
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Download
+          </Button>
+        </div>
       </div>
-
-      {selectedPlan && (
-        <Card className="mt-6">
-          <CardContent className="p-4">
-            <h3 className="text-lg font-medium mb-2">{selectedPlan.name}</h3>
-            <div className="relative rounded-md overflow-hidden bg-gray-100">
-              {isImageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                </div>
-              )}
-              <img
-                src={getImageUrl(selectedPlan.file_path)}
-                alt={selectedPlan.name}
-                className="w-full h-auto"
-                onLoad={() => setIsImageLoading(false)}
-                onError={(e) => {
-                  console.error(`Failed to load image: ${getImageUrl(selectedPlan.file_path)}`);
-                  (e.target as HTMLImageElement).src = '/placeholder-floor-plan.png';
-                }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      
+      <div className="border border-gray-200 rounded-md overflow-hidden">
+        {floorPlanUrl ? (
+          <img 
+            src={floorPlanUrl} 
+            alt={`${name} preview`}
+            className="w-full object-contain"
+            style={{ maxHeight: '300px' }}
+          />
+        ) : (
+          <div className="bg-gray-100 h-64 flex items-center justify-center">
+            <p className="text-gray-500">No floor plan available</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default FloorPlanView; 
- 
+export default FloorPlanView;
