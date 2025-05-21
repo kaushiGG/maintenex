@@ -299,9 +299,9 @@ const BusinessSidebarContent = ({
           icon={MapPin}
           size="sm"
         />
-        {/* Floor Plans */}
+        {/* Enhanced Floor Plans - new menu item */}
         <SidebarMenuItem
-          to="/sites/floor-plans"
+          to="/sites/enhanced-floor-plans"
           title="Floor Plans"
           icon={MapPin}
           size="sm"

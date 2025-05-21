@@ -68,6 +68,7 @@ import MyJobsPage from './components/contractor/jobs/MyJobsPage';
 import ProviderAssignedJobsPage from './components/client/jobs/ProviderAssignedJobsPage';
 import JobsDebugPage from './pages/JobsDebugPage';
 import BusinessJobDetailsPage from './components/client/jobs/BusinessJobDetailsPage';
+import EnhancedFloorPlans from './pages/EnhancedFloorPlans';
 
 // Business provider jobs page with logout
 const BusinessProviderJobsPage = () => {
@@ -187,6 +188,7 @@ function App() {
             <Route path="/service-form-access" element={<ProtectedRoute><ServiceFormAccess /></ProtectedRoute>} />
             <Route path="/locations" element={<ProtectedRoute><ServiceAreas /></ProtectedRoute>} />
             <Route path="/sites/floor-plans" element={<ProtectedRoute><FloorPlans /></ProtectedRoute>} />
+            <Route path="/sites/enhanced-floor-plans" element={<ProtectedRoute><EnhancedFloorPlans /></ProtectedRoute>} />
             <Route path="/sites/maps/add-floor-plans" element={<ProtectedRoute><FloorPlans initialTab="upload" /></ProtectedRoute>} />
             <Route path="/sites/maps/view-floor-plans" element={<ProtectedRoute><FloorPlans initialTab="view" /></ProtectedRoute>} />
             <Route path="/services/landing/safety-checks" element={<ProtectedRoute><ServicesLandingPage /></ProtectedRoute>} />
