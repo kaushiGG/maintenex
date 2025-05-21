@@ -51,7 +51,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'sonner';
 import UserApprovalPage from './pages/UserApprovalPage';
 import AddEquipmentPage from './pages/equipment/AddEquipmentPage';
-import FloorPlans from './pages/FloorPlans';
 import CompletedJobReports from './pages/CompletedJobReports';
 import ContractorCompletedJobReports from './pages/ContractorCompletedJobReports';
 import ContractorCompletedJobs from './pages/ContractorCompletedJobs';
@@ -187,10 +186,10 @@ function App() {
             <Route path="/services/directory" element={<ProtectedRoute><ServiceDirectory /></ProtectedRoute>} />
             <Route path="/service-form-access" element={<ProtectedRoute><ServiceFormAccess /></ProtectedRoute>} />
             <Route path="/locations" element={<ProtectedRoute><ServiceAreas /></ProtectedRoute>} />
-            <Route path="/sites/floor-plans" element={<ProtectedRoute><FloorPlans /></ProtectedRoute>} />
+            <Route path="/sites/floor-plans" element={<ProtectedRoute><EnhancedFloorPlans /></ProtectedRoute>} />
             <Route path="/sites/enhanced-floor-plans" element={<ProtectedRoute><EnhancedFloorPlans /></ProtectedRoute>} />
-            <Route path="/sites/maps/add-floor-plans" element={<ProtectedRoute><FloorPlans initialTab="upload" /></ProtectedRoute>} />
-            <Route path="/sites/maps/view-floor-plans" element={<ProtectedRoute><FloorPlans initialTab="view" /></ProtectedRoute>} />
+            <Route path="/sites/maps/add-floor-plans" element={<ProtectedRoute><EnhancedFloorPlans /></ProtectedRoute>} />
+            <Route path="/sites/maps/view-floor-plans" element={<ProtectedRoute><EnhancedFloorPlans /></ProtectedRoute>} />
             <Route path="/services/landing/safety-checks" element={<ProtectedRoute><ServicesLandingPage /></ProtectedRoute>} />
             <Route path="/employees" element={<ProtectedRoute><EmployeesPage /></ProtectedRoute>} />
             <Route path="/employees/safety-officers" element={<ProtectedRoute><SafetyOfficersPage /></ProtectedRoute>} />

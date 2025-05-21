@@ -4,12 +4,10 @@ import { EquipmentItem } from './types/equipment';
 import InventoryHeader from './inventory/InventoryHeader';
 import InventoryTable from './inventory/InventoryTable';
 import FilterBar from './inventory/FilterBar';
-import FloorPlanViewer from './floorplans/FloorPlanViewer';
-import FloorPlanUpload from './floorplans/FloorPlanUpload';
-import FloorPlanManagement from './floorplans/FloorPlanManagement';
+import EnhancedFloorPlanManager from './floorplans/EnhancedFloorPlanManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlusCircle, TableProperties, Upload } from 'lucide-react';
+import { PlusCircle, TableProperties, Upload, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -160,7 +158,7 @@ const SiteInventoryView: React.FC<SiteInventoryViewProps> = ({ viewType = 'inven
         <TabsContent value="floorplan">
           <Card>
             <CardContent className="p-4">
-              <FloorPlanViewer />
+              <EnhancedFloorPlanManager />
             </CardContent>
           </Card>
         </TabsContent>
@@ -168,7 +166,7 @@ const SiteInventoryView: React.FC<SiteInventoryViewProps> = ({ viewType = 'inven
         <TabsContent value="upload">
           <Card>
             <CardContent className="p-4">
-              <FloorPlanUpload siteId={siteId || ''} />
+              <EnhancedFloorPlanManager />
             </CardContent>
           </Card>
         </TabsContent>

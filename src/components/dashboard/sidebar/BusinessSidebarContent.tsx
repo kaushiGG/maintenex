@@ -287,10 +287,11 @@ const BusinessSidebarContent = ({
         isExpanded={expandedSections.siteManagement}
         onToggle={() => toggleSection('siteManagement')}
       >
+
         <SidebarMenuItem
-          to="/sites"
-          title="Sites"
-          icon={Building}
+          to="/sites/management"
+          title="Site Management"
+          icon={Settings}
           size="sm"
         />
         <SidebarMenuItem
