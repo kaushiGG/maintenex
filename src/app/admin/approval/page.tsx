@@ -1,8 +1,8 @@
+
 import React from 'react';
 import ContractorApproval from '@/components/admin/ContractorApproval';
-import { Metadata } from 'next';
 
-export const metadata: Metadata = {
+const metadata = {
   title: 'Contractor Approval | Pretance',
   description: 'Approve or reject contractor profiles',
 };
@@ -14,4 +14,4 @@ export default function ApprovalPage() {
       <ContractorApproval />
     </div>
   );
-} 
+}

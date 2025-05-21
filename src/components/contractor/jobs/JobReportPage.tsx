@@ -89,6 +89,7 @@ const JobReportPage: React.FC<JobReportPageProps> = ({
       
       console.log(`Fetching report data from ${tableName} table, report ID: ${id}`);
       
+      // Use the strongly typed table name instead of a string
       const { data, error } = await supabase
         .from(tableName)
         .select('*')
@@ -210,7 +211,7 @@ const JobReportPage: React.FC<JobReportPageProps> = ({
               </div>
             </div>
             <div className="mt-5 flex md:mt-0 md:ml-4">
-              <Button onClick={handleGoBack}>
+              <Button onClick={() => navigate(-1)}>
                 <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
                 Back
               </Button>
