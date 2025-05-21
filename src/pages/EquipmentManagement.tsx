@@ -6,7 +6,11 @@ import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import EquipmentDashboard from '@/components/equipment/EquipmentDashboard';
 import { Card } from '@/components/ui/card';
 
-const EquipmentManagement = () => {
+interface EquipmentManagementProps {
+  portalType?: 'business' | 'contractor';
+}
+
+const EquipmentManagement: React.FC<EquipmentManagementProps> = ({ portalType = 'business' }) => {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const [hasError, setHasError] = useState(false);
@@ -35,14 +39,14 @@ const EquipmentManagement = () => {
         userRole="business"
         handleLogout={handleLogout}
         title="Equipment Management"
-        portalType="business"
+        portalType={portalType}
         userMode="management"
       />
       
       <div className="flex min-h-[calc(100vh-64px)]">
         <DashboardSidebar 
           handleLogout={handleLogout}
-          portalType="business"
+          portalType={portalType}
           userMode="management"
         />
         
@@ -55,7 +59,7 @@ const EquipmentManagement = () => {
             </Card>
           ) : (
             <ErrorBoundary>
-              <EquipmentDashboard portalType="business" />
+              <EquipmentDashboard portalType={portalType} />
             </ErrorBoundary>
           )}
         </main>

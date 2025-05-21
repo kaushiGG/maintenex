@@ -37,10 +37,10 @@ interface Contractor {
 interface AddContractorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (contractor: Omit<Contractor, 'id' | 'created_at' | 'updated_at'>) => void;
+  onAddContractor: (contractor: Omit<Contractor, 'id' | 'created_at' | 'updated_at'>) => Promise<boolean>;
 }
 
-export default function AddContractorDialog({ open, onOpenChange, onAdd }: AddContractorDialogProps) {
+export default function AddContractorDialog({ open, onOpenChange, onAddContractor }: AddContractorDialogProps) {
   const [formData, setFormData] = React.useState({
     name: '',
     service_type: '',
@@ -52,7 +52,7 @@ export default function AddContractorDialog({ open, onOpenChange, onAdd }: AddCo
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd(formData);
+    onAddContractor(formData);
     setFormData({
       name: '',
       service_type: '',

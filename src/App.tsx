@@ -169,8 +169,8 @@ function App() {
             <Route path="/equipment/dashboard" element={<ProtectedRoute><EquipmentManagement /></ProtectedRoute>} />
             <Route path="/equipment/management" element={<ProtectedRoute><EquipmentManagement /></ProtectedRoute>} />
             <Route path="/dashboard/equipment/add" element={<ProtectedRoute><AddEquipmentPage /></ProtectedRoute>} />
-            <Route path="/contractor/equipment" element={<ProtectedRoute><EquipmentManagement portalType="contractor" /></ProtectedRoute>} />
-            <Route path="/contractor/equipment/dashboard" element={<ProtectedRoute><EquipmentManagement portalType="contractor" /></ProtectedRoute>} />
+            <Route path="/contractor/equipment" element={<ProtectedRoute><EquipmentManagement /></ProtectedRoute>} />
+            <Route path="/contractor/equipment/dashboard" element={<ProtectedRoute><EquipmentManagement /></ProtectedRoute>} />
             <Route path="/contractor/assets" element={<ProtectedRoute><AssetManagement /></ProtectedRoute>} />
             <Route path="/contractor/assets/dashboard" element={<ProtectedRoute><AssetManagement /></ProtectedRoute>} />
             <Route path="/services/plumbing" element={<ProtectedRoute><PlumbingService /></ProtectedRoute>} />
