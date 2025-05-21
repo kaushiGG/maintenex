@@ -12,6 +12,12 @@ export interface Job {
   business_sites?: {
     name: string;
     address: string;
+    description?: string;
+    type?: string;
+    contact_name?: string;
+    contact_phone?: string;
+    contact_email?: string;
+    notes?: string;
   };
   created_at: string;
   
@@ -32,6 +38,7 @@ export interface Job {
   equipment?: string;
   assignment_notes?: string;
   job_type?: string;
+  notes?: string;
 }
 
 // Job status types
