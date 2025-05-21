@@ -27,7 +27,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     password: '',
     confirmPassword: ''
   });
-  const [userType, setUserType] = useState<'business' | 'contractor'>('contractor');
+  const [userType, setUserType] = useState<'business' | 'contractor' | 'employee'>('contractor');
   const [formErrors, setFormErrors] = useState({
     firstName: '',
     lastName: '',
@@ -169,7 +169,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     if (isInvitedEmployee) {
       return;
     }
-    setUserType(value as 'business' | 'contractor');
+    setUserType(value as 'business' | 'contractor' | 'employee');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -228,7 +228,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           <div className="relative">
             <div className="absolute -inset-1 rounded-md blur-md bg-gradient-to-r from-forgemate-gradient-start to-forgemate-gradient-end opacity-70 animate-pulse"></div>
             <div className="relative">
-              <h1 className="text-4xl font-black tracking-widest text-white animate-float">FORGEMATE</h1>
+              <h1 className="text-4xl font-black tracking-widest text-white animate-fadeIn">FORGEMATE</h1>
             </div>
           </div>
         </div>
@@ -301,6 +301,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="contractor" id="contractor" className="text-forgemate-orange border-gray-600" />
                 <Label htmlFor="contractor" className="text-white">Contractor</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="employee" id="employee" className="text-forgemate-orange border-gray-600" />
+                <Label htmlFor="employee" className="text-white">Employee</Label>
               </div>
             </RadioGroup>
           </div>

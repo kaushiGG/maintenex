@@ -84,16 +84,9 @@ const SiteInventoryView: React.FC<SiteInventoryViewProps> = ({ viewType = 'inven
     loadEquipment();
   };
 
-  const getSiteName = () => {
-    return selectedSite ? "Selected Site" : "All Sites";
-  };
-  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        {/* Commented out the duplicate 'Equipment Inventory' heading */}
-        {/* <h3 className="text-xl font-semibold">Equipment Inventory</h3> */}
-        
         <div className="flex space-x-2">
           <Button 
             variant="outline" 
@@ -132,7 +125,7 @@ const SiteInventoryView: React.FC<SiteInventoryViewProps> = ({ viewType = 'inven
             Table View
           </TabsTrigger>
           <TabsTrigger value="floorplan" className="flex items-center">
-            <TableProperties className="h-4 w-4 mr-2" />
+            <Map className="h-4 w-4 mr-2" />
             Floor Plan View
           </TabsTrigger>
           <TabsTrigger value="upload" className="flex items-center">
@@ -158,7 +151,7 @@ const SiteInventoryView: React.FC<SiteInventoryViewProps> = ({ viewType = 'inven
         <TabsContent value="floorplan">
           <Card>
             <CardContent className="p-4">
-              <EnhancedFloorPlanManager />
+              <EnhancedFloorPlanManager siteId={selectedSite} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -166,7 +159,7 @@ const SiteInventoryView: React.FC<SiteInventoryViewProps> = ({ viewType = 'inven
         <TabsContent value="upload">
           <Card>
             <CardContent className="p-4">
-              <EnhancedFloorPlanManager />
+              <EnhancedFloorPlanManager siteId={selectedSite} />
             </CardContent>
           </Card>
         </TabsContent>
