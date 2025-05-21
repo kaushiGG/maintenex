@@ -1,18 +1,18 @@
 import React from 'react';
 import ContractorsManagement from '@/components/contractors/ContractorsManagement';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 const ContractorManagementPage = () => {
   const { user } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
-      router.push('/login');
+      navigate('/login');
     }
-  }, [user, router]);
+  }, [user, navigate]);
 
   // Determine user role based on auth context
   const userRole = user?.user_metadata?.userType || 'contractor';
@@ -20,9 +20,9 @@ const ContractorManagementPage = () => {
   // Redirect non-business users
   useEffect(() => {
     if (user && userRole !== 'business' && userRole !== 'contractor') {
-      router.push('/unauthorized');
+      navigate('/unauthorized');
     }
-  }, [user, userRole, router]);
+  }, [user, userRole, navigate]);
 
   if (!user) {
     return <p>Loading...</p>;
